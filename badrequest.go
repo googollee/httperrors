@@ -31,11 +31,14 @@ func BadRequest[Code CodeType](message string, fields ...FieldError[Code]) *BadR
 		Details: make(map[string]FieldError[Code]),
 	}
 
-	for _, field := range fields {
-		ret.Details[field.Name] = field
-	}
+	return ret.Join(fields...)
+}
 
-	return ret
+func (e *BadRequestError[Code]) Join(fields ...FieldError[Code]) *BadRequestError[Code] {
+	for _, field := range fields {
+		e.Details[field.Name] = field
+	}
+	return e
 }
 
 func (e BadRequestError[Code]) HTTPCode() int {
